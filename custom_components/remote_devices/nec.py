@@ -13,6 +13,8 @@ NEC protocol:
   - Bit 1: 560us mark, 1690us space
   - Bit 0: 560us mark, 560us space
   - Data: 32 bits LSB first (8-bit address + 8-bit ~address + 8-bit command + 8-bit ~command)
+  - Extended NEC: the second byte carries a 16-bit address high byte instead
+    of ~address (see NECCommand.address_high)
   - Stop bit: 560us mark
 """
 
@@ -42,6 +44,7 @@ class NECCommand(InfraredCommand):
         address: int,
         command: int,
         repeat_count: int = 0,
+        address_high: int | None = None,
     ) -> None:
         """Initialize NEC command.
 
@@ -49,9 +52,15 @@ class NECCommand(InfraredCommand):
             address: 8-bit device address (0x00-0xFF)
             command: 8-bit command code (0x00-0xFF)
             repeat_count: number of additional times to transmit
+            address_high: optional explicit high address byte for *extended*
+                NEC. When None (default), standard NEC is used and the second
+                address byte is the complement of ``address``. When set, the
+                given byte is sent verbatim (e.g. Audioengine's 0x00FD address,
+                where 0xFD is not ~0x00).
         """
         super().__init__(modulation=NEC_FREQUENCY_KHZ, repeat_count=repeat_count)
         self.address = address & 0xFF
+        self.address_high = None if address_high is None else address_high & 0xFF
         self.command = command & 0xFF
 
     def _encode_byte_lsb(self, byte: int) -> list[int]:
@@ -70,7 +79,10 @@ class NECCommand(InfraredCommand):
         """Return the complete NEC frame as signed-µs mark/space pairs."""
         timings: list[int] = [NEC_HEADER_MARK_US, -NEC_HEADER_SPACE_US]
         timings.extend(self._encode_byte_lsb(self.address))
-        timings.extend(self._encode_byte_lsb(~self.address & 0xFF))
+        if self.address_high is None:
+            timings.extend(self._encode_byte_lsb(~self.address & 0xFF))
+        else:
+            timings.extend(self._encode_byte_lsb(self.address_high))
         timings.extend(self._encode_byte_lsb(self.command))
         timings.extend(self._encode_byte_lsb(~self.command & 0xFF))
         timings.append(NEC_STOP_MARK_US)

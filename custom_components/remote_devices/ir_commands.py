@@ -26,6 +26,9 @@ from .nec import NECCommand, RawBroadlinkCommand, RawTestCommand  # noqa: E402
 from .sharp import DenonCommand, SharpCommand  # noqa: E402
 from .const import (  # noqa: E402
     AMINO_STB_BROADLINK_CODES,
+    AUDIOENGINE_A5_ADDRESS,
+    AUDIOENGINE_A5_ADDRESS_HIGH,
+    AUDIOENGINE_A5_COMMANDS,
     DENON_AVR_ADDRESS,
     DENON_AVR_COMMANDS,
     LG_TV_ADDRESS,
@@ -104,6 +107,23 @@ def make_denon_avr_command(command_name: str) -> DenonCommand | None:
     if code is None:
         return None
     return DenonCommand(address=DENON_AVR_ADDRESS, command=code)
+
+
+def make_audioengine_a5_command(command_name: str) -> NECCommand | None:
+    """Create an IR command for Audioengine A5+ powered speakers.
+
+    Uses extended NEC protocol with 16-bit address 0x00FD. The high address
+    byte (0xFD) is not the complement of the low byte, so it is passed
+    explicitly. Supports power (toggle), volume up/down, and mute.
+    """
+    code = AUDIOENGINE_A5_COMMANDS.get(command_name)
+    if code is None:
+        return None
+    return NECCommand(
+        address=AUDIOENGINE_A5_ADDRESS,
+        command=code,
+        address_high=AUDIOENGINE_A5_ADDRESS_HIGH,
+    )
 
 
 def make_philips_lamp_command(command_name: str) -> NECCommand | None:

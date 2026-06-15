@@ -11,6 +11,7 @@ DEVICE_TYPE_NEC_TV = "nec_tv"
 DEVICE_TYPE_SAMSUNG_TV = "samsung_tv"
 DEVICE_TYPE_SHARP_TV = "sharp_tv"
 DEVICE_TYPE_DENON_AVR = "denon_avr"
+DEVICE_TYPE_AUDIOENGINE_A5 = "audioengine_a5"
 DEVICE_TYPE_PHILIPS_LAMP = "philips_lamp"
 DEVICE_TYPE_AMINO_STB = "amino_stb"
 DEVICE_TYPE_RAW_TEST = "raw_test"
@@ -21,6 +22,7 @@ DEVICE_TYPES = {
     DEVICE_TYPE_SAMSUNG_TV: "Samsung TV",
     DEVICE_TYPE_SHARP_TV: "Sharp TV (Aquos)",
     DEVICE_TYPE_DENON_AVR: "Denon AVR Receiver",
+    DEVICE_TYPE_AUDIOENGINE_A5: "Audioengine A5+ Speakers",
     DEVICE_TYPE_PHILIPS_LAMP: "Philips RGBIC Lamp",
     DEVICE_TYPE_AMINO_STB: "Amino Kamai Set-top Box",
     DEVICE_TYPE_AIRWIT_FAN: "Airwit Plafondventilator (RF 433 MHz)",
@@ -35,6 +37,7 @@ DEVICE_PROTOCOLS = {
     DEVICE_TYPE_SAMSUNG_TV: "ir",
     DEVICE_TYPE_SHARP_TV: "ir",
     DEVICE_TYPE_DENON_AVR: "ir",
+    DEVICE_TYPE_AUDIOENGINE_A5: "ir",
     DEVICE_TYPE_PHILIPS_LAMP: "ir",
     DEVICE_TYPE_AMINO_STB: "ir",
     DEVICE_TYPE_RAW_TEST: "ir",
@@ -161,6 +164,22 @@ DENON_AVR_COMMANDS = {
     "stereo": 230,
     "standard": 228,
     "multi_channel": 219,
+}
+
+# Audioengine A5+ powered speakers — extended NEC protocol.
+# 16-bit address 0x00FD (low byte 0x00, high byte 0xFD). Unlike standard NEC,
+# the high byte is NOT the complement of the low byte, so it is specified
+# explicitly via NECCommand(address_high=...).
+# Codes verified against the Flipper Zero IR database and the JP1 Remotes forum.
+AUDIOENGINE_A5_ADDRESS = 0x00
+AUDIOENGINE_A5_ADDRESS_HIGH = 0xFD
+
+# Power (0x01) is intentionally omitted: the A5+ powers on/off via the front
+# volume knob, not the IR remote, so an IR power code has no effect.
+AUDIOENGINE_A5_COMMANDS = {
+    "volume_up": 0x09,
+    "volume_down": 0x07,
+    "mute": 0x03,
 }
 
 # Philips RGBIC Ambient Floor Lamp — NEC protocol (address 0x00)

@@ -21,6 +21,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import (
     AMINO_STB_BROADLINK_CODES,
+    AUDIOENGINE_A5_COMMANDS,
     CONF_ATTACH_TO_DEVICE,
     CONF_DEVICE_NAME,
     CONF_DEVICE_TYPE,
@@ -29,6 +30,7 @@ from .const import (
     DEVICE_PROTOCOLS,
     DEVICE_TYPE_AIRWIT_FAN,
     DEVICE_TYPE_AMINO_STB,
+    DEVICE_TYPE_AUDIOENGINE_A5,
     DEVICE_TYPE_DENON_AVR,
     DEVICE_TYPE_NEC_TV,
     DEVICE_TYPE_PHILIPS_LAMP,
@@ -44,6 +46,7 @@ from .const import (
 )
 from .ir_commands import (
     make_amino_stb_command,
+    make_audioengine_a5_command,
     make_denon_avr_command,
     make_lg_command,
     make_philips_lamp_command,
@@ -144,7 +147,7 @@ async def async_setup_entry(
             name=device_name,
             manufacturer="Remote Devices",
             model=DEVICE_TYPES.get(device_type, device_type),
-            sw_version="0.8.1",
+            sw_version="0.9.0",
         )
 
     protocol = DEVICE_PROTOCOLS.get(device_type, "ir")
@@ -193,6 +196,19 @@ async def async_setup_entry(
                     emitter_entity_id=emitter_entity_id,
                     command_name=cmd_name,
                     command_factory=lambda name=cmd_name: make_denon_avr_command(name),
+                    device_info=device_info,
+                )
+            )
+    elif device_type == DEVICE_TYPE_AUDIOENGINE_A5:
+        for cmd_name in AUDIOENGINE_A5_COMMANDS:
+            entities.append(
+                button_cls(
+                    config_entry=config_entry,
+                    emitter_entity_id=emitter_entity_id,
+                    command_name=cmd_name,
+                    command_factory=lambda name=cmd_name: make_audioengine_a5_command(
+                        name
+                    ),
                     device_info=device_info,
                 )
             )

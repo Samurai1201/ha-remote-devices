@@ -5,6 +5,18 @@ All notable changes to the Remote Devices integration will be documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2026-06-15
+
+### Added
+- **Audioengine A5+ Speakers** device type (IR — extended NEC, 16-bit address 0x00FD, 3 commands: volume up/down, mute)
+  - Exposed as a `media_player` entity (volume step + mute, assumed "on" state) plus 3 buttons
+  - No power command: the A5+ powers on/off via the front volume knob, not the IR remote
+  - Codes verified against the Flipper Zero IR database and the JP1 Remotes forum
+- `NECCommand` now supports **extended NEC** via a new `address_high` argument. When set, the second address byte is sent verbatim instead of as the complement of the low byte — required for the Audioengine address (0xFD is not ~0x00). Standard NEC behaviour is unchanged when `address_high` is omitted.
+
+### Changed
+- Bumped DeviceInfo `sw_version` to 0.9.0.
+
 ## [0.8.1] - 2026-05-06
 
 ### Fixed

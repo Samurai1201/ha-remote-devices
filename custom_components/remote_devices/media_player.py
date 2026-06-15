@@ -23,6 +23,7 @@ from .const import (
     CONF_EMITTER_ENTITY_ID,
     DEVICE_TYPE_AIRWIT_FAN,
     DEVICE_TYPE_AMINO_STB,
+    DEVICE_TYPE_AUDIOENGINE_A5,
     DEVICE_TYPE_DENON_AVR,
     DEVICE_TYPE_NEC_TV,
     DEVICE_TYPE_PHILIPS_LAMP,
@@ -33,6 +34,7 @@ from .const import (
     DOMAIN,
 )
 from .ir_commands import (
+    make_audioengine_a5_command,
     make_denon_avr_command,
     make_lg_command,
     make_samsung_command,
@@ -73,6 +75,8 @@ async def async_setup_entry(
         command_factory = make_sharp_tv_command
     elif device_type == DEVICE_TYPE_DENON_AVR:
         command_factory = make_denon_avr_command
+    elif device_type == DEVICE_TYPE_AUDIOENGINE_A5:
+        command_factory = make_audioengine_a5_command
     else:
         return
 
@@ -81,14 +85,24 @@ async def async_setup_entry(
         name=device_name,
         manufacturer="Remote Devices",
         model=DEVICE_TYPES.get(device_type, device_type),
-        sw_version="0.8.1",
+        sw_version="0.9.0",
     )
 
-    # Denon AVR has discrete power on/off commands
-    power_on_cmd = "power_on" if device_type == DEVICE_TYPE_DENON_AVR else "power"
-    power_off_cmd = "power_off" if device_type == DEVICE_TYPE_DENON_AVR else "power"
-    name = "Receiver" if device_type == DEVICE_TYPE_DENON_AVR else "TV"
-    icon = "mdi:audio-video" if device_type == DEVICE_TYPE_DENON_AVR else "mdi:television"
+    # Power command names and entity presentation vary by device type. Denon has
+    # discrete power on/off codes; TVs use a single power toggle. The A5+ has no
+    # IR power code (it powers on/off via the front knob), so it exposes only
+    # volume + mute and has no power on/off feature.
+    supports_power = True
+    if device_type == DEVICE_TYPE_DENON_AVR:
+        power_on_cmd, power_off_cmd = "power_on", "power_off"
+        name, icon = "Receiver", "mdi:audio-video"
+    elif device_type == DEVICE_TYPE_AUDIOENGINE_A5:
+        power_on_cmd = power_off_cmd = "power"
+        name, icon = "Speakers", "mdi:speaker"
+        supports_power = False
+    else:
+        power_on_cmd = power_off_cmd = "power"
+        name, icon = "TV", "mdi:television"
 
     async_add_entities(
         [
@@ -101,6 +115,7 @@ async def async_setup_entry(
                 power_off_command=power_off_cmd,
                 name=name,
                 icon=icon,
+                supports_power=supports_power,
             )
         ]
     )
@@ -111,12 +126,6 @@ class IRMediaPlayer(MediaPlayerEntity):
 
     _attr_has_entity_name = True
     _attr_assumed_state = True
-    _attr_supported_features = (
-        MediaPlayerEntityFeature.TURN_ON
-        | MediaPlayerEntityFeature.TURN_OFF
-        | MediaPlayerEntityFeature.VOLUME_STEP
-        | MediaPlayerEntityFeature.VOLUME_MUTE
-    )
 
     def __init__(
         self,
@@ -128,8 +137,14 @@ class IRMediaPlayer(MediaPlayerEntity):
         power_off_command: str = "power",
         name: str = "TV",
         icon: str = "mdi:television",
+        supports_power: bool = True,
     ) -> None:
-        """Initialize the IR media player."""
+        """Initialize the IR media player.
+
+        When ``supports_power`` is False the entity exposes only volume + mute
+        (no turn on/off) and assumes an "on" state so the volume controls stay
+        active — used for devices with no IR power code (e.g. Audioengine A5+).
+        """
         self._emitter_entity_id = emitter_entity_id
         self._command_factory = command_factory
         self._power_on_command = power_on_command
@@ -138,8 +153,20 @@ class IRMediaPlayer(MediaPlayerEntity):
         self._attr_icon = icon
         self._attr_unique_id = f"{config_entry.entry_id}_media_player"
         self._attr_device_info = device_info
-        self._attr_state = MediaPlayerState.OFF
         self._attr_is_volume_muted = False
+
+        features = (
+            MediaPlayerEntityFeature.VOLUME_STEP
+            | MediaPlayerEntityFeature.VOLUME_MUTE
+        )
+        if supports_power:
+            features |= (
+                MediaPlayerEntityFeature.TURN_ON | MediaPlayerEntityFeature.TURN_OFF
+            )
+        self._attr_supported_features = features
+        self._attr_state = (
+            MediaPlayerState.OFF if supports_power else MediaPlayerState.ON
+        )
 
     async def _send_command(self, command_name: str) -> None:
         """Send an IR command by name."""

@@ -26,6 +26,7 @@ Set it up, pick your device type, pick the matching emitter (the integration fil
 | Samsung TV | IR — NEC (addr 0x07) | media_player + 15 buttons |
 | Sharp TV (Aquos) | IR — Sharp (addr 0x01) | media_player + 20 buttons |
 | Denon AVR Receiver | IR — Denon (addr 0x02) | media_player + 16 buttons |
+| Audioengine A5+ Speakers | IR — extended NEC (addr 0x00FD) | media_player (volume + mute) + 3 buttons |
 | Philips RGBIC Lamp | IR — NEC (addr 0x00) | 11 buttons |
 | Amino Kamai 7X STB | IR — RC6 (raw learned) | 8 buttons |
 | Raw Test | IR — raw burst | 1 button |
