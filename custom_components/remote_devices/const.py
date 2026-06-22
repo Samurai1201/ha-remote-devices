@@ -207,7 +207,7 @@ TRISTAR_AC_BUTTONS = ("power", "mode", "speed")
 # feedback, so this just bounds how far the +/- stepper can travel.
 TRISTAR_AC_TEMP_MIN = 16
 TRISTAR_AC_TEMP_MAX = 31
-TRISTAR_AC_TEMP_DEFAULT = 22
+TRISTAR_AC_TEMP_DEFAULT = 25  # the PD-8779 powers on at 25 °C
 
 # Philips RGBIC Ambient Floor Lamp — NEC protocol (address 0x00)
 PHILIPS_LAMP_ADDRESS = 0x00
