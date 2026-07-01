@@ -38,6 +38,7 @@ from .const import (
     DEVICE_TYPE_SAMSUNG_TV,
     DEVICE_TYPE_SHARP_TV,
     DEVICE_TYPE_TRISTAR_AC,
+    DEVICE_TYPE_YAMAHA_STEREO,
     DEVICE_TYPES,
     DOMAIN,
     LG_TV_COMMANDS,
@@ -45,6 +46,7 @@ from .const import (
     SAMSUNG_TV_COMMANDS,
     SHARP_TV_COMMANDS,
     TRISTAR_AC_COMMANDS,
+    YAMAHA_STEREO_COMMANDS,
 )
 from .ir_commands import (
     make_amino_stb_command,
@@ -56,6 +58,7 @@ from .ir_commands import (
     make_samsung_command,
     make_sharp_tv_command,
     make_tristar_ac_command,
+    make_yamaha_stereo_command,
 )
 from .rf_commands import make_airwit_fan_command
 
@@ -251,6 +254,19 @@ async def async_setup_entry(
                     emitter_entity_id=emitter_entity_id,
                     command_name=cmd_name,
                     command_factory=lambda name=cmd_name: make_amino_stb_command(name),
+                    device_info=device_info,
+                )
+            )
+    elif device_type == DEVICE_TYPE_YAMAHA_STEREO:
+        for cmd_name in YAMAHA_STEREO_COMMANDS:
+            entities.append(
+                button_cls(
+                    config_entry=config_entry,
+                    emitter_entity_id=emitter_entity_id,
+                    command_name=cmd_name,
+                    command_factory=lambda name=cmd_name: make_yamaha_stereo_command(
+                        name
+                    ),
                     device_info=device_info,
                 )
             )
