@@ -41,6 +41,8 @@ from .const import (  # noqa: E402
     SHARP_TV_COMMANDS,
     TRISTAR_AC_ADDRESS,
     TRISTAR_AC_COMMANDS,
+    YAMAHA_STEREO_ADDRESS,
+    YAMAHA_STEREO_COMMANDS,
 )
 
 
@@ -162,6 +164,17 @@ def make_amino_stb_command(command_name: str) -> RawBroadlinkCommand | None:
         return None
     return RawBroadlinkCommand(b64_code)
 
+
+def make_yamaha_stereo_command(command_name: str) -> NECCommand | None:
+    """Create an IR command for a yamaha stereo.
+
+    Plain NEC protocol (address 0x8778). The remote sends discrete button codes
+    (power, volume up/down, mute, input, pure_direct); the stereo tracks its own state.
+    """
+    code = YAMAHA_STEREO_COMMANDS.get(command_name)
+    if code is None:
+        return None
+    return NECCommand(address=YAMAHA_STEREO_ADDRESS, command=code)
 
 def make_raw_test_command() -> RawTestCommand:
     """Create a raw test signal command."""
