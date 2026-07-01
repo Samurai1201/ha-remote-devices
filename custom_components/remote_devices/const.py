@@ -270,7 +270,7 @@ YAMAHA_STEREO_COMMANDS = {
     "volume_up": 0xE11E,
     "volume_down": 0xE01F,
     "mute": 0x639C,
-    "aux": 0xB649,
-    "tuner": 0xB44B,
+    "input_v_aux": 0xB649,
+    "input_tuner": 0xB44B,
     "pure_direct": 0xAF50,
 }
