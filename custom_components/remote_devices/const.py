@@ -272,5 +272,5 @@ YAMAHA_STEREO_COMMANDS = {
     "mute": 0x639C,
     "aux": 0xB649,
     "tuner": 0xB44B,
-    "pure-direct": 0xAF50,
+    "pure_direct": 0xAF50,
 }
